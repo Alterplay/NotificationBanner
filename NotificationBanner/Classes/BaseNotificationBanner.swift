@@ -497,13 +497,10 @@ open class BaseNotificationBanner: UIView {
         delegate?.notificationBannerWillDisappear(self)
 
         isDisplaying = false
+        let shouldDismissAnimated = bannerQueue.banners.contains(self)
         remove()
 
-        UIView.animate(withDuration: forced ? animationDuration / 2 : animationDuration,
-                       animations: {
-                        self.frame = self.bannerPositionFrame.startFrame
-        }) { (completed) in
-
+        let completion = {
             self.removeFromSuperview()
 
             NotificationCenter.default.post(name: BaseNotificationBanner.BannerDidDisappear, object: self, userInfo: self.notificationUserInfo)
@@ -514,6 +511,17 @@ open class BaseNotificationBanner: UIView {
                     self.appWindow?.windowLevel = UIWindow.Level.normal
                 }
             })
+        }
+        
+        if shouldDismissAnimated {
+            UIView.animate(withDuration: forced ? animationDuration / 2 : animationDuration,
+                           animations: {
+                            self.frame = self.bannerPositionFrame.startFrame
+            }) { _ in
+                completion()
+            }
+        } else {
+            completion()
         }
     }
 
