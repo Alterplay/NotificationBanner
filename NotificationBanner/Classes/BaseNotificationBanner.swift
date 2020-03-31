@@ -268,7 +268,16 @@ open class BaseNotificationBanner: UIView {
     }
 
     internal func spacerViewHeight() -> CGFloat {
-        return NotificationBannerUtilities.isNotchFeaturedIPhone()
+        var hasSafeArea = NotificationBannerUtilities.isNotchFeaturedIPhone()
+        if hasSafeArea,
+            #available(iOS 11, *) {
+            if let parentViewController = parentViewController {
+                hasSafeArea = parentViewController.view.safeAreaInsets.top > 0
+            } else {
+                hasSafeArea = false
+            }
+        }
+        return hasSafeArea
             && UIApplication.shared.statusBarOrientation.isPortrait
             && (parentViewController?.navigationController?.isNavigationBarHidden ?? true) ? 40.0 : 10.0
     }
