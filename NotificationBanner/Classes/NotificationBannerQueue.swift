@@ -129,9 +129,17 @@ open class NotificationBannerQueue: NSObject {
     /**
      Forced dissmiss all notification banners from the queue
      */
-    public func dismissAllForced() {
-        banners.forEach { $0.dismiss(forced: true) }
+    public func dismissAllForced(afterDelay delay: TimeInterval? = nil) {
+        let bannersCopy = banners
         banners.removeAll()
+        let action = {
+            bannersCopy.forEach { $0.dismiss(forced: true) }
+        }
+        if let delay = delay {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: action)
+        } else {
+            action()
+        }
     }
 
 }
